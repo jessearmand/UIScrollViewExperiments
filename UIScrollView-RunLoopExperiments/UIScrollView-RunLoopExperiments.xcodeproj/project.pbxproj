@@ -74,7 +74,10 @@
 				FF68BE1414FB3E2900DF3EE6 /* Products */,
 				4DA847A58019466494CC4790 /* Pods.xcconfig */,
 			);
+			indentWidth = 4;
 			sourceTree = "<group>";
+			tabWidth = 4;
+			usesTabs = 1;
 		};
 		FF68BE1414FB3E2900DF3EE6 /* Products */ = {
 			isa = PBXGroup;
