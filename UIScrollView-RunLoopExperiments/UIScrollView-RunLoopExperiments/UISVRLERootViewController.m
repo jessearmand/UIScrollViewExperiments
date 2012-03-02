@@ -90,8 +90,6 @@ static NSString *const FlickrInterestingnessMethod = @"flickr.interestingness.ge
 
 	CFRunLoopAddObserver(CFRunLoopGetMain(), self.rlObserver, kCFRunLoopDefaultMode);
 	
-	[self scheduleRefresh];
-	
 	return self;
 
 }
@@ -122,11 +120,9 @@ static NSString *const FlickrInterestingnessMethod = @"flickr.interestingness.ge
 			
 			NSLog(@"back to default mode, time to do work");
 			
-			[self flickrGetInterestingness];
+			[self updateViews];
 			
 		});
-		
-		[self scheduleRefresh];
 			
 	});
 
@@ -138,9 +134,19 @@ static NSString *const FlickrInterestingnessMethod = @"flickr.interestingness.ge
 	self.cellNib = [UINib nibWithNibName:NSStringFromClass([UISVRLEPhotoTableViewCell class]) bundle:nil];
 	
 	self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+	
+	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Load" style:UIBarButtonItemStyleBordered target:self action:@selector(flickrGetInterestingness)];
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+	[super viewDidAppear:animated];
+	
+	[self flickrGetInterestingness];
 }
 
 - (void) updateViews {
+	[SVProgressHUD dismiss];
+	
 	if ([self.photos count] > 0)
 		self.tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
 	
@@ -208,7 +214,7 @@ static NSString *const FlickrInterestingnessMethod = @"flickr.interestingness.ge
 						if (photo != nil) [self.photos addObject:photo];
 					}
 					
-					[self updateViews];
+					[self scheduleRefresh];
 				}
 			}
 		}
