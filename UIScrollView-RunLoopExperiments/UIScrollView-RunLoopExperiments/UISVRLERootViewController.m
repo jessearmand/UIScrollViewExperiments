@@ -213,9 +213,9 @@ static NSString *const FlickrInterestingnessMethod = @"flickr.interestingness.ge
 						NSDictionary *photo = [NSDictionary dictionaryWithObjectsAndKeys:photoURL, @"url", photoTitle, @"title", nil];
 						if (photo != nil) [self.photos addObject:photo];
 					}
-					
-					[self scheduleRefresh];
 				}
+				
+				[self scheduleRefresh];
 			}
 		}
 		
@@ -229,6 +229,9 @@ static NSString *const FlickrInterestingnessMethod = @"flickr.interestingness.ge
 #pragma mark - UIViewController 
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation {
+	if (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad)
+		return YES;
+
 	return (interfaceOrientation == UIInterfaceOrientationPortrait);
 }
 
@@ -243,7 +246,7 @@ static NSString *const FlickrInterestingnessMethod = @"flickr.interestingness.ge
 #pragma mark - UITableView
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-	return 320.f;
+	return self.tableView.frame.size.width;
 }
 
 - (NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
