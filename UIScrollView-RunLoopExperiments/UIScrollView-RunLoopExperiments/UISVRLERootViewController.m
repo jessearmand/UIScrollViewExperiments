@@ -13,6 +13,7 @@
 #import "SVProgressHUD.h"
 
 #import "AFNetworking.h"
+#import "UIImageView+WebCache.h"
 
 static NSString *const FlickrAPIKey = @"3a90d382bec6c10f96ba132b4344537e";
 static NSString *const FlickrAPISecret = @"803f457a5a37235f";
@@ -265,7 +266,7 @@ static NSString *const FlickrInterestingnessMethod = @"flickr.interestingness.ge
 		NSURL *photoURL = [photo objectForKey:@"url"];
 		NSString *photoTitle = [photo objectForKey:@"title"];
 		
-		[cell.photoImageView setImageWithURL:photoURL];
+		[cell.photoImageView setImageWithURL:photoURL placeholderImage:nil options:SDWebImageRetryFailed];
 		cell.photoTitleLabel.text = photoTitle;
 	}
 	
