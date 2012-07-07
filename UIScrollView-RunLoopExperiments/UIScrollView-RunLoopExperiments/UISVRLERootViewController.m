@@ -107,23 +107,14 @@ static NSString *const FlickrInterestingnessMethod = @"flickr.interestingness.ge
 }
 
 - (void) scheduleRefresh {
-
-	//	This is the old way, things are done on main queue but not always when it’s appropriate
-	//	Let’s simulate network operation
 	
-	dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 4 * NSEC_PER_SEC), dispatch_get_main_queue(), ^ {
-	
-		CFRunLoopPerformBlock(CFRunLoopGetMain(), kCFRunLoopDefaultMode, ^{
+	CFRunLoopPerformBlock(CFRunLoopGetMain(), kCFRunLoopDefaultMode, ^{
 		
-			if (![self isViewLoaded])
-				return;
-			
-			NSLog(@"back to default mode, time to do work");
-			
-			[self updateViews];
-			
-		});
-			
+		if (![self isViewLoaded])
+			return;
+		
+		[self updateViews];
+		
 	});
 
 }
