@@ -48,6 +48,7 @@ static NSString *const FlickrInterestingnessMethod = @"flickr.interestingness.ge
 	if (!self)
 		return nil;
 	
+	self.title = NSLocalizedString(@"Interesting Photos", nil);
 	self.page = 1;
 	self.photos = [NSMutableArray arrayWithCapacity:0];  
   
