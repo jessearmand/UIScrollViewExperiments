@@ -19,8 +19,8 @@
 	
 	UIViewController *viewController = [(UIViewController *)[NSClassFromString(@"UISVRLERootViewController") alloc] init];
 	UINavigationController *navigationController = [[UINavigationController alloc] initWithRootViewController:viewController];
-	navigationController.navigationBar.barStyle = UIBarStyleBlack;
-	navigationController.navigationBar.translucent = YES;
+	navigationController.navigationBar.barStyle = UIBarStyleDefault;
+	navigationController.navigationBar.tintColor = [UIColor grayColor];
 	
 	self.window.rootViewController = navigationController;
 	[self.window makeKeyAndVisible];

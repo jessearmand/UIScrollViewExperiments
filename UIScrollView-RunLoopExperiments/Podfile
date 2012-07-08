@@ -1,5 +1,5 @@
 platform :ios
 
 dependency 'AFNetworking'
-dependency 'SVProgressHUD'
 dependency 'SDWebImage'
+dependency 'SVPullToRefresh'

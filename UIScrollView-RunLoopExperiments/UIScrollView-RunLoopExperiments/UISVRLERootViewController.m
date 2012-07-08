@@ -10,7 +10,8 @@
 #import "UISVRLERootViewController.h"
 
 #import "UISVRLEPhotoTableViewCell.h"
-#import "SVProgressHUD.h"
+
+#import "SVPullToRefresh.h"
 
 #import "AFNetworking.h"
 #import "UIImageView+WebCache.h"
@@ -41,7 +42,7 @@ static NSString *const FlickrInterestingnessMethod = @"flickr.interestingness.ge
 @synthesize page;
 @synthesize cellNib;
 
-- (id) init {
+- (id)init {
 
 	self = [super init];
 	if (!self)
@@ -95,7 +96,7 @@ static NSString *const FlickrInterestingnessMethod = @"flickr.interestingness.ge
 
 }
 
-- (void) dealloc {
+- (void)dealloc {
   
 	if (rlObserver) {
     
@@ -107,7 +108,7 @@ static NSString *const FlickrInterestingnessMethod = @"flickr.interestingness.ge
   
 }
 
-- (void) scheduleRefresh {
+- (void)scheduleRefresh {
 	
 	CFRunLoopPerformBlock(CFRunLoopGetMain(), kCFRunLoopDefaultMode, ^{
 		
@@ -127,7 +128,20 @@ static NSString *const FlickrInterestingnessMethod = @"flickr.interestingness.ge
 	
 	self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
 	
-	self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Load" style:UIBarButtonItemStyleBordered target:self action:@selector(flickrGetInterestingness)];
+	UITableView *theTableView = self.tableView;
+	
+	__weak id weakSelf = self;
+	[theTableView addPullToRefreshWithActionHandler:^{
+		__strong id strongSelf = weakSelf;
+		if (strongSelf)
+			[strongSelf scheduleRefresh];
+	}];
+	
+	[theTableView addInfiniteScrollingWithActionHandler:^{
+		__strong id strongSelf = weakSelf;
+		if (strongSelf)
+			[strongSelf flickrGetInterestingness];
+	}];
 }
 
 - (void)viewDidAppear:(BOOL)animated {
@@ -136,18 +150,19 @@ static NSString *const FlickrInterestingnessMethod = @"flickr.interestingness.ge
 	[self flickrGetInterestingness];
 }
 
-- (void) updateViews {
-	[SVProgressHUD dismiss];
-	
+- (void)updateViews {
 	if ([self.photos count] > 0)
 		self.tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
 	
 	[self.tableView reloadData];
+	
+	self.tableView.pullToRefreshView.lastUpdatedDate = [NSDate date];
+	[self.tableView.pullToRefreshView stopAnimating];
 }
 
 #pragma mark - Flickr API
 
-- (NSURL *) flickrPhotoURLFromDictionary:(NSDictionary *)photoDict {
+- (NSURL *)flickrPhotoURLFromDictionary:(NSDictionary *)photoDict {
   
 	//
 	// URL format: http://farm{farm-id}.staticflickr.com/{server-id}/{id}_{secret}_[mstzb].jpg
@@ -165,10 +180,7 @@ static NSString *const FlickrInterestingnessMethod = @"flickr.interestingness.ge
 	return photoURL;
 }
 
-- (void) flickrGetInterestingness {
-  
-	[SVProgressHUD showWithStatus:@"Loading.." networkIndicator:YES];
-	
+- (void)flickrGetInterestingness {
 	// Set the page limit to 10, so it will be loading 10*20 = 200 photos in the end
 	
 	++self.page;
@@ -229,7 +241,7 @@ static NSString *const FlickrInterestingnessMethod = @"flickr.interestingness.ge
 
 #pragma mark - UIScrollView delegate
 
-- (void) scrollViewDidScroll:(UIScrollView *)scrollView {
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
 
 	//	NSLog(@"%s %@", __PRETTY_FUNCTION__, scrollView);
 
@@ -241,15 +253,15 @@ static NSString *const FlickrInterestingnessMethod = @"flickr.interestingness.ge
 	return self.tableView.frame.size.width;
 }
 
-- (NSInteger) tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
 
 	return [self.photos count];
 }
 
-- (UITableViewCell *) tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+- (UITableViewCell *)tableView:(UITableView *)aTableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
 
 	NSString *identifier = NSStringFromClass([UISVRLEPhotoTableViewCell class]);
-	UISVRLEPhotoTableViewCell *cell = (UISVRLEPhotoTableViewCell *)[tableView dequeueReusableCellWithIdentifier:identifier];
+	UISVRLEPhotoTableViewCell *cell = (UISVRLEPhotoTableViewCell *)[aTableView dequeueReusableCellWithIdentifier:identifier];
 	if (cell == nil) {
 		NSArray *nibObjects = [self.cellNib instantiateWithOwner:self options:nil];
 		for (id nibObject in nibObjects) {
@@ -274,4 +286,8 @@ static NSString *const FlickrInterestingnessMethod = @"flickr.interestingness.ge
 
 }
 
+- (void)viewDidUnload {
+	self.tableView = nil;
+	[super viewDidUnload];
+}
 @end
